@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-
+import sys
 import os
 import os.path
 import requests
@@ -131,8 +131,12 @@ def convert_tar_to_csv(sourcepath, destinationpath, filename, location):
 
 
 if __name__ == '__main__':
-    url = "https://www1.ncdc.noaa.gov/pub/has/model/HAS011478636/"
-    grb_filepath = '/home/saptaparni/gfsdata/'
+    if len(sys.argv) < 2:
+        sys.exit("Use with %s <url> <target path>" % sys.argv[0])
+    url = sys.argv[1]
+    grb_filepath = sys.argv[2]
+#    url = "https://www1.ncdc.noaa.gov/pub/has/model/HAS011478636/"
+#    grb_filepath = '/home/saptaparni/gfsdata/'
     tar_links = get_file_links(url)
     download_tar_files(tar_links, grb_filepath)
     extract_grib_files(grb_filepath, '.tar')
