@@ -26,6 +26,7 @@ def extract_param(filename, var):
     '''
     extract specified parameters from grib files and return it as an array
     '''
+    print(filename)
     try:
         with pygrib.open(filename) as grbs:
             grb = grbs.select(name = var)[0]
@@ -82,11 +83,21 @@ def convert_to_netcdf(files, outfilepath,  var1, var2):
     data_variables[var2] = (dim_labels, var2_forecast)
     #data_variables[var3] = (dim_labels, var3_forecast)
     ds = xr.Dataset(data_variables, coords=coords)
-    start = gribfiles[0].find('gfs_')
-    end = start + 19
-    outfilename = os.path.join(os.path.join(outfilepath, gribfiles[0][start:end] +".nc"))
-    print(outfilename)
-    ds.to_netcdf(outfilename)
+    #start = gribfiles[0].find('gfs_')
+    #end = start + 19
+    #outfilename = os.path.join(os.path.join(outfilepath, gribfiles[0][start:end] +".nc"))
+    #print(outfilename)
+    ds.to_netcdf(outfilepath)
+
+def get_filenames(source):
+    fns = glob.glob(os.path.join(source, "*.grb2"))
+    fns.sort()
+
+    df = pd.DataFrame()
+    df["names"] = fns
+    df["dates"] = df["names"].apply(lambda x : pd.Timestamp(x[-22:-14]))
+
+    return df
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -98,13 +109,19 @@ if __name__ == '__main__':
     var1 = 'Downward short-wave radiation flux'
     var2 = 'Temperature'
     print(sourcepath)
-    for i in range(1, 31):
-        files = glob.glob(os.path.join(sourcepath, "gfs_3_2020*{}_*.grb2".format(i)))
-        if len(files) != 0:
-            convert_to_netcdf(files, outfilepath, var1, var2)
-
-
-
-
+    #for i in range(1, 31):
+    #    files = glob.glob(os.path.join(sourcepath, "gfs_3_2020*{}_*.grb2".format(i)))
+    #    print(os.path.join(sourcepath, "gfs_3_2020*{}_*.grb2".format(i)))
+    #    if len(files) != 0:
+    #        print(files[0])
+    #        convert_to_netcdf(files, outfilepath, var1, var2)
+    #        break
+    df = get_filenames(sourcepath)
+    for date in df.dates.unique():
+        namelist = list(df[df.dates == date]["names"])
+        ncname = pd.Timestamp(date).strftime("GFS_%Y%m%d_000.nc")
+        outfilename = os.path.join(outfilepath, ncname)
+        print("processing ", date, " using %d gribfiles" % (len(namelist)))
+        convert_to_netcdf(namelist, outfilename, var1, var2)
 
 
