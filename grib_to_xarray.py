@@ -26,13 +26,12 @@ def extract_param(filename, var):
     '''
     extract specified parameters from grib files and return it as an array
     '''
-    print(filename)
     try:
         with pygrib.open(filename) as grbs:
             grb = grbs.select(name = var)[0]
             data, lats, lons = grb.data()
         return data
-    except ValueError:
+    except ValueError: # This wont work, even if the exception is caught, the function now returns None.
         print("Parameter not found: {}".format(var))
 
 
@@ -70,12 +69,12 @@ def convert_to_netcdf(files, outfilepath,  var1, var2):
     data_variables = OrderedDict()
     coords = OrderedDict()
     data_variables = OrderedDict()
-    dim_labels = ['forecastdate', 'forecasttime', 'step', 'x', 'y', ]
+    dim_labels = ['date', 'time', 'step', 'x', 'y', ]
 
     coords['latitude'] =  (['x', 'y'], lats)
     coords['longitude'] = (['x', 'y'], lons)
-    coords['date'] = date
-    coords['time'] = time
+    coords['date'] = [date]
+    coords['time'] = [time]
     coords['step'] = pd.timedelta_range('3h', freq='3h', periods = var1_forecast.shape[2])
 
 
@@ -122,6 +121,9 @@ if __name__ == '__main__':
         ncname = pd.Timestamp(date).strftime("GFS_%Y%m%d_000.nc")
         outfilename = os.path.join(outfilepath, ncname)
         print("processing ", date, " using %d gribfiles" % (len(namelist)))
-        convert_to_netcdf(namelist, outfilename, var1, var2)
+        try:
+            convert_to_netcdf(namelist, outfilename, var1, var2)
+        except Exception as err:
+            print(err)
 
 
