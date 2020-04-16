@@ -6,8 +6,8 @@
 
 import os
 import os.path
-import requests 
-from bs4 import BeautifulSoup 
+import requests
+from bs4 import BeautifulSoup
 import pygrib
 import tarfile
 import pandas as pd
@@ -36,11 +36,11 @@ def extract_param(filename, var):
 
 
 def convert_to_netcdf(files, outfilepath,  var1, var2):
-    
+
     '''
     Fetch var1 and var2 from grib files and converts it to netcdf file
     -----------------------------------
-    
+
     filepath: complete path of grib file
     outfilepath: path to store the netcdf files
     var1: Downward short-wave radiation flux
@@ -49,7 +49,7 @@ def convert_to_netcdf(files, outfilepath,  var1, var2):
     '''
     gribfiles = files #glob.glob(os.path.join(filepath, "*grb2"))
     gribfiles.sort()
-    
+
     grb = pygrib.open(gribfiles[1]).select(name = var1)[0]
     data, lats, lons = grb.data()
     date = datetime.datetime(year=grb.year, month=grb.month, day=grb.day, hour = 0)
@@ -58,14 +58,14 @@ def convert_to_netcdf(files, outfilepath,  var1, var2):
     var1_forecast = np.stack([extract_param(file, var1) for file in gribfiles[1:]])
     var2_forecast = np.stack([extract_param(file, var2) for file in gribfiles[1:]])
     #var3_forecast = np.stack([extract_param(file, var3) for file in gribfiles[1:]])
-    
+
     x = var1_forecast.shape[1]
     y = var1_forecast.shape[2]
     var1_forecast = var1_forecast.reshape((1, 1, var1_forecast.shape[0], x, y))
     var2_forecast = var2_forecast.reshape((1, 1, var2_forecast.shape[0], x, y))
     #var3_forecast = var3_forecast.reshape((1, 1, var3_forecast.shape[0], x, y))
-    
-    
+
+
     data_variables = OrderedDict()
     coords = OrderedDict()
     data_variables = OrderedDict()
@@ -91,10 +91,10 @@ def convert_to_netcdf(files, outfilepath,  var1, var2):
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.exit("Use with %s <source file path> <output file path>" % sys.argv[0])
-        
+
     sourcepath = sys.argv[1]
     outfilepath = sys.argv[2]
-    
+
     var1 = 'Downward short-wave radiation flux'
     var2 = 'Temperature'
     print(sourcepath)
