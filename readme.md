@@ -10,6 +10,13 @@ Convert downloaded grib files to netcdf files
 ```
 $ python3 grib_to_xarray.py path/to/source/files /path/tp/output/files/
 ```
+Download weather forecast data from GDPS. Use with:
+
+```
+$ python3 download_gdps_grib.py https://dd.weather.gc.ca/model_gem_global/25km/grib2/lat_lon <file destination> <variable>
+
+```
+
 
 
 
