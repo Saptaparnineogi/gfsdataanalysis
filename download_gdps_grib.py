@@ -88,6 +88,16 @@ def download_grib_files(file_link, dest_path):
     print("All files downloaded!")
     return
 
+def main(url, file_destination, var):
+    runs = ['00/', '12/']
+    for r in runs:
+        fd = listFD(os.path.join(url, r))
+        for f in fd:
+            filepath = os.path.join(url, r, f)
+            filelinks = get_file_links(filepath, var)
+            download_grib_files(filelinks, file_destination)
+
+
 
 if __name__ == '__main__':
     '''
@@ -116,10 +126,4 @@ if __name__ == '__main__':
     url = sys.argv[1]
     file_destination = sys.argv[2]
     var = sys.argv[3]
-    runs = ['00/', '12/']
-    for r in runs:
-        fd = listFD(os.path.join(url, r))
-        for f in fd:
-            filepath = os.path.join(url, r, f)
-            filelinks = get_file_links(filepath, var)
-            download_grib_files(filelinks, file_destination)
+    main(url, file_destination, var)
