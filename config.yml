@@ -19,3 +19,12 @@ variables:
         GHI: Downward short-wave radiation flux
         Temperature: Temperature
 
+# Paths where files are to be written
+paths:
+    gdps:
+        grib: ./
+        netCDF: ./
+    gfs:
+        grib: ./
+        netCDF: ./
+
