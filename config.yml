@@ -1,0 +1,21 @@
+---
+url:
+    gdps: https://dd.weather.gc.ca/model_gem_global/25km/grib2/lat_lon/
+    gfs: https://www1.ncdc.noaa.gov/pub/has/model/
+
+# Necessary when running code behind e.g. a corporate firewall.
+proxies:
+    http:
+    https:
+
+variables:
+    gdps:
+        GHI: DSWRF_SFC
+        Wind speed: WIND_TGL
+        Wind direction: WDIR_TGL
+        Total cloud: TCDC_SFC
+        Temperature: TMP_ISBL 
+    gfs:
+        GHI: Downward short-wave radiation flux
+        Temperature: Temperature
+
