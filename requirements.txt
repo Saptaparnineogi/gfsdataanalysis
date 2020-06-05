@@ -2,3 +2,4 @@ beautifulsoup4
 xarray
 pygrib
 pyyaml
+netcdf4
