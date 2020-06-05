@@ -63,13 +63,8 @@ def download_grib_files(file_link, dest_path):
     file_link: string
     dest_path: string
     '''
-
-    try:
+    if not os.path.exists(dest_path):
         os.mkdir(dest_path)
-    except OSError:
-        print("Path %s already exists" % dest_path)
-    else:
-        print("Successfully created the directory %s " % dest_path)
 
     for link in file_link:
 
@@ -88,7 +83,6 @@ def download_grib_files(file_link, dest_path):
             for chunk in r.iter_content(chunk_size=1024*1024):
                 if chunk:
                     f.write(chunk)
-    print("All files downloaded!")
     return
 
 def main(url, file_destination, var):
