@@ -1,10 +1,13 @@
 import sys
 import os
-import os.path
+from os.path import join, dirname
 import requests
 from bs4 import BeautifulSoup
 import re
+import yaml
 
+with open(join(dirname(__file__), "config.yml"), "r") as yfile:
+    CFG = yaml.load(yfile, Loader=yaml.FullLoader)
 
 def listFD(url):
     '''
@@ -18,7 +21,7 @@ def listFD(url):
 
     '''
     folders = []
-    page = requests.get(url).text
+    page = requests.get(url, proxies=CFG["proxies"]).text
     soup = BeautifulSoup(page, 'html.parser')
     for node in soup.find_all('a'):
         if node.get('href')[0].isdigit():
@@ -60,13 +63,8 @@ def download_grib_files(file_link, dest_path):
     file_link: string
     dest_path: string
     '''
-
-    try:
+    if not os.path.exists(dest_path):
         os.mkdir(dest_path)
-    except OSError:
-        print("Path %s already exists" % dest_path)
-    else:
-        print("Successfully created the directory %s " % dest_path)
 
     for link in file_link:
 
@@ -85,7 +83,6 @@ def download_grib_files(file_link, dest_path):
             for chunk in r.iter_content(chunk_size=1024*1024):
                 if chunk:
                     f.write(chunk)
-    print("All files downloaded!")
     return
 
 def main(url, file_destination, var):
@@ -123,7 +120,8 @@ if __name__ == '__main__':
 
     if len(sys.argv) < 4:
         sys.exit("Use with %s <url> <target path> <variable>" % sys.argv[0])
-    url = sys.argv[1]
+    #url = sys.argv[1]
+    url = CFG["url"]["gdps"]
     file_destination = sys.argv[2]
     var = sys.argv[3]
     main(url, file_destination, var)
