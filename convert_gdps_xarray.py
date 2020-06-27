@@ -21,6 +21,8 @@ VAR = {"GHI": "DSWRF_SFC",
        "Total cloud": "TCDC_SFC",
        "Temperature": "TMP_ISBL"}
 
+LOCATIONLIST = {"Freiburg": (48.00000000000081, 7.919999999999624)}
+
 
 def get_filenames(source):
     '''
@@ -152,6 +154,52 @@ def convert_to_netcdf(files, outfilepath):
     ds.to_netcdf(outfilepath)
 
 
+def get_index(files, lon, lat):
+    '''
+    This function fetches the index of a given Location in the LOCATIONLIST,
+    from the gribfiles
+
+    Paremeters:
+    -----------------------
+    files: list of grib files
+    lon: longitude of the location we need to fetch data for
+    lat: latitude of the location we need to fetch data for
+    
+    '''
+    gribfiles = files
+    gribfiles.sort()
+    for v in VAR.values():
+        var_files = [file for file in gribfiles if v in file]
+        if len(var_files) != 0:
+            grb = pygrib.open(var_files[1]).select()[0]
+            data, lats, lons = grb.data()
+            lon_index = np.where(lons == lon)[1][0]
+            lat_index = np.where(lats == lat)[0][0]
+    return lon_index, lat_index
+
+
+def extract_loc_forecast(gribfiles, nc_file, locfilename, longitude, latitude):
+    '''
+    This function creates netcdf file with required forecast for the given location
+    in the LOCATIONLIST. It fetches data from the netcdf file, created for the forecast
+    of entire world by selecting data based on index of the location.
+
+    Parameters:
+    ------------------------------
+    gribfiles: list of gribfile names
+    nc_file: netcdf file name which stores forecast data for entire world
+    locfilename: name of the output file
+    longitude: longitude of the location we need to fetch data for
+    latitude: latitude of the location we need to fetch data for
+    
+    '''
+    lon_index, lat_index = get_index(gribfiles, longitude, latitude)
+    gdps_ds = xr.open_dataset(nc_file)
+    gdps_ds = gdps_ds.sel(x=lat_index, y=lon_index)
+    print(locfilename)
+    gdps_ds.to_netcdf(locfilename)
+
+
 def main(sourcepath, outfilepath):
     df = get_filenames(sourcepath)
     for date in df.dates.unique():
@@ -163,6 +211,16 @@ def main(sourcepath, outfilepath):
             convert_to_netcdf(namelist, outfilename)
         except Exception as err:
             print(err)
+
+        # This part of code runs only when there is data in LOCATIONLIST dict
+        if bool(LOCATIONLIST):
+            for k, v in LOCATIONLIST.items():
+                location_name = k
+                longitude = v[0]
+                latitude = v[1]
+                locfilename = outfilename[:-3] + '_' + location_name + '.nc'
+                print(locfilename)
+                extract_loc_forecast(namelist, outfilename, locfilename, longitude, latitude)
 
 
 if __name__ == '__main__':
