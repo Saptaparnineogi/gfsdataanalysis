@@ -1,4 +1,4 @@
-## These codes are developed as a part of my work at Fraunhofer ISE
+## These python scripts are developed as a part of my work at Fraunhofer ISE
 
 The scripts can be used to download and convert weather forecast data from two sources. We are dealing with GFS weather forecast system (used in USA) and GDPS weather forecast system (used in Canada).
 Weather forecast data comes in grib file format, so preprocessing of those data was a major part of this task. I have written the scripts to download the files automatically from server and also to convert the data from grib files to easily interpretable NETCDF files.
